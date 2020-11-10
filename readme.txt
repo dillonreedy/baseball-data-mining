@@ -1,0 +1,1 @@
+THis will be a simple application for mining data.
