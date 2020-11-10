@@ -1,12 +1,23 @@
-const http = require('http')
-const PORT = 3000;
+const axios = require('axios');
+const cheerio = require('cheerio');
 
-const server = http.createServer((req, res) => {
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/plain');
-    res.end('Hello World');
-});
+const getPostTitles = async () => {
+	try {
+		const { data } = await axios.get(
+			'https://old.reddit.com/r/programming/'
+		);
+		const $ = cheerio.load(data);
+		const postTitles = [];
 
-server.listen(PORT, () => {
-    console.log(`Server listening at PORT: ${PORT}`);
-})
+		$('div > p.title > a').each((_idx, el) => {
+			const postTitle = $(el).text()
+			postTitles.push(postTitle)
+		});
+
+		return postTitles;
+	} catch (error) {
+		throw error;
+	}
+};
+
+getPostTitles().then((postTitles) => console.log(postTitles));
