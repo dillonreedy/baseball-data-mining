@@ -1,23 +1,33 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
+const fileHandler = require('./fileHandler.js');
 
 const getPostTitles = async () => {
 	try {
-		const { data } = await axios.get(
-			'https://old.reddit.com/r/programming/'
-		);
-		const $ = cheerio.load(data);
-		const postTitles = [];
+		const response = await axios.get('https://www.baseball-reference.com/boxes/MIL/MIL201909020.shtml');
 
-		$('div > p.title > a').each((_idx, el) => {
-			const postTitle = $(el).text()
-			postTitles.push(postTitle)
-		});
+        const $ = cheerio.load(response.data);
 
-		return postTitles;
-	} catch (error) {
+        $('*').contents().map((i, el) => {
+            if (el.type === 'comment' && el.data.includes('ERA')) {
+                fileHandler.writeToFile(el.data, `${Date.now().toString()}result.html`);
+            }
+        })
+
+        let results = $('*').contents().map((i, el) => {
+            if (el.type === 'comment' && el.data.includes('ERA')) return el.data;
+        }).get()[0];
+
+        
+        console.log(results);
+
+        //console.log(results);
+
+	} catch (error) { 
 		throw error;
 	}
 };
 
-getPostTitles().then((postTitles) => console.log(postTitles));
+getPostTitles().then(() => {
+    //console.log('All done.');
+});
