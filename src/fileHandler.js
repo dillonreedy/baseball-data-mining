@@ -1,12 +1,11 @@
 const fs = require('fs');
 const path = require('path');
 
-const writeToFile = (data, fileName) => {
-    // delete directory recursively
-    let dir = "results"
+let dir = "results";
+let folderPath = path.join(__dirname, dir);
 
-    let folderPath = path.join(__dirname, dir);
-    let filePath = path.join(__dirname, dir, fileName);
+const clearFolder = () => {
+    // delete directory recursively
 
     try {
         fs.rmdirSync(folderPath, { recursive: true });
@@ -15,20 +14,26 @@ const writeToFile = (data, fileName) => {
     } catch (err) {
         console.error(`Error while deleting ${folderPath}.`);
     }
-    
+}
+
+const writeToFile = (data, fileName = `${Date.now().toString()}result`, fileExtension = 'html') => {
+    let fullFileName = `${fileName}.${fileExtension}`
+    let filePath = path.join(__dirname, dir, fullFileName);
+     
     if (!fs.existsSync(folderPath)) fs.mkdirSync(folderPath);
 
     fs.open(filePath, 'w',(err) => {
         if (err) throw err;
-        console.log(`${fileName} created at ${folderPath}`);
+        console.log(`${fullFileName} created at ${folderPath}`);
     });
 
     fs.writeFile(filePath, data, (err) => {
         if (err) throw err;
-        console.log(`Data successfully written to ${fileName}`);
+        console.log(`Data successfully written to ${fullFileName}`);
     })
 }
 
 module.exports = {
+    clearFolder,
     writeToFile
 }
